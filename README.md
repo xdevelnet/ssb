@@ -42,7 +42,7 @@ You can use libssb in your project just by including libssb.c to your source cod
 
 ### See also
 
- * tcsv2ssb - csv to TSSB converter
+ * https://github.com/xdevelnet/tcsv2tssb - csv to TSSB converter
 
 ### Many thanks for
 
