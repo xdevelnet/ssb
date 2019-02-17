@@ -7,6 +7,8 @@ According to the format, blocks are stored sequentially (in a linear space like 
 
 Thus, we can easily determine the exact position and the size of the next block. Also, after some preparations, we can immediatly get the data and its size.
 
+![ssb](https://user-images.githubusercontent.com/16417758/52917366-39d1c000-32f3-11e9-8f23-09cae1123a5b.png)
+
 SSB itself is not as useful as the derivative formats.
 
 ## TSSB
