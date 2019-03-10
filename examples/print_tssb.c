@@ -23,7 +23,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <tssb.c>
+#include <libtssb.c>
 #include <stdlib.h>
 #include <stdio.h>
 
