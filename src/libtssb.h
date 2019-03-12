@@ -27,6 +27,7 @@
 #include <stdint.h> // uintblablabla_t
 
 unsigned long max_acceptable_dimension_size = 150; // how BIG any tssb table dimension could be? Modify it if you need.
+#define TSSB_CALCULATE(structure) (8 + structure.size + structure.rows * sizeof(void *) + structure.cols * structure.rows * sizeof(void *))
 
 typedef struct {
 	const char *errreasonstr; // if something BAD happens, here will be pointer to null terminated string with appropriate error reason
@@ -37,7 +38,7 @@ typedef struct {
 	char *source; // pointer to memory area for filename and, later, to memory are with tssb. Must not be used by user
 } ssbu;
 
-//ssbu check_tssb_from_file(const char *filename);
+ssbu check_tssb(const char *filename);
 // above
 // check if it's ssb file and retrieve size in bytes, number of rows, numbers of cols
 
@@ -45,13 +46,8 @@ ssbu prepare_tssb(const char *filename, void *stackmem, size_t msize);
 // above
 // Evaluates requered preparations before parsing
 // Pass non-NULL value to stackmem if you already have memory space for our needs.
-//     How much memory will be used from stackmem? Here is its: 8 + u.size + u.cols * sizeof(void *) + u.cols * u.rows * sizeof(void *)
+//     How much memory will be used from stackmem? Here is its: 8 + u.size + u.rows * sizeof(void *) + u.cols * u.rows * sizeof(void *). You also can use TSSB_CALCULATE macros for that.
 //     You also must pass msize if you used stackmem because we going to recheck if we will fit.
-
-//int pseudoprepare_tssb(ssbu *tssb, void *stackmem);
-// NOT IMPLEMENTED IN CURRENT VERSION
-// Just like prepare_tssb(), but stackmem is redundant and tssb data must already present in here.
-// Useful if you don't want to deal with files.
 
 char ***parse_tssb(ssbu *u);
 // above

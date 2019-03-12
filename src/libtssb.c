@@ -220,6 +220,19 @@ ssbu prepare_tssb(const char *filename, void *stackmem, size_t msize) {
 	ret: return u;
 }
 
+ssbu check_tssb(const char *filename) {
+	ssbu u = {.errreasonstr = NULL};
+
+	int fd = open(filename, O_RDONLY);
+	if (fd < 0) POSIXERR_AND_JUMP(ret);
+	if (fstat_getsize(fd, &u.size) < 0) POSIXERR_AND_JUMP(reclose);
+	u.sizestorage = check_signature(fd, &u);
+	if (u.sizestorage == 0) goto reclose;
+	get_ssb_dimensions(fd, &u);
+	reclose: close(fd);
+	ret: return u;
+}
+
 static inline void *alignto(void *addr, size_t alignment) {
 	// above
 	// Move addr to next addres which is a multiple of alignment
