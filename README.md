@@ -42,9 +42,18 @@ An example(s) is stored in examples directory from libtssb subproject.
 API and its description is located in tssb.h header file.
 You can use libssb in your project just by including libssb.c to your source code, or by including libssb.h and linking with precompiled libssb library.
 
+## ESSB
+
+ESSB is a format that stores data just like in pure SSB, but some data records (we're going to call them "keys") are intended for special usage. Such records must be detected with first byte that equals to zero. Originally, ESSB was created to use it as storage for templates, so ESSB parser implementations can provide mechanism to particular processing.
+
+## libessb
+
+currently not implemented
+
 ### See also
 
  * https://github.com/xdevelnet/tcsv2tssb - csv to TSSB converter
+ * https://github.com/xdevelnet/template2essb - template to ESSB converter
 
 ### Many thanks for
 
