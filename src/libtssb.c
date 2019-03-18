@@ -198,7 +198,7 @@ ssbu prepare_tssb(const char *filename, void *stackmem, size_t msize) {
 	u.sizestorage = check_signature(fd, &u);
 	if (u.sizestorage == 0) goto reclose;
 	if (get_ssb_dimensions(fd, &u) == false) goto reclose;
-	size_t expected_amount_of_space = SSB_ALIGN_FUCKING_POINTERS + u.size + u.rows * sizeof(void *) + u.cols * u.rows * sizeof(void *);
+	size_t expected_amount_of_space = SSB_ALIGN_FUCKING_POINTERS + u.size + u.rows * sizeof(void *) + (u.cols + 1) * u.rows * sizeof(void *);
 	char *data;
 	if (stackmem == NULL) {
 		data = mcalloc(expected_amount_of_space);
@@ -243,7 +243,8 @@ static inline void *alignto(void *addr, size_t alignment) {
 
 static inline char ***set_2ndptrs(ssbu u) {
 	// above
-	// Handy procedure that sets pointers for first dimension for twodimensional array.
+	// Handy procedure that sets pointers for first dimension for twodimensional array. Sets last element of second
+	// dimension to NULL
 
 	char ***t = (char ***) (u.source + u.size);
 	// the address in t variable is not aligned. Read commends at SSB_ALIGN_FUCKING_POINTERS macro description if you
@@ -252,7 +253,8 @@ static inline char ***set_2ndptrs(ssbu u) {
 	size_t rowscount = 0;
 
 	while(rowscount < u.rows) {
-		t[rowscount] = (char **) (t + u.rows + rowscount * u.cols);
+		t[rowscount] = (char **) (t + u.rows + rowscount * (u.cols + 1));
+		t[rowscount][u.cols] = NULL;
 		rowscount++;
 	}
 

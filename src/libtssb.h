@@ -27,7 +27,7 @@
 #include <stdint.h> // uintblablabla_t
 
 unsigned long max_acceptable_dimension_size = 150; // how BIG any tssb table dimension could be? Modify it if you need.
-#define TSSB_CALCULATE(structure) (8 + structure.size + structure.rows * sizeof(void *) + structure.cols * structure.rows * sizeof(void *))
+#define TSSB_CALCULATE(structure) (8 + structure.size + structure.rows * sizeof(void *) + (structure.cols + 1) * structure.rows * sizeof(void *))
 
 typedef struct {
 	const char *errreasonstr; // if something BAD happens, here will be pointer to null terminated string with appropriate error reason
@@ -46,7 +46,7 @@ ssbu prepare_tssb(const char *filename, void *stackmem, size_t msize);
 // above
 // Evaluates requered preparations before parsing
 // Pass non-NULL value to stackmem if you already have memory space for our needs.
-//     How much memory will be used from stackmem? Here is its: 8 + u.size + u.rows * sizeof(void *) + u.cols * u.rows * sizeof(void *). You also can use TSSB_CALCULATE macros for that.
+//     How much memory will be used from stackmem? Here is its: 8 + u.size + u.rows * sizeof(void *) + (u.cols + 1) * u.rows * sizeof(void *). You also can use TSSB_CALCULATE macros for that.
 //     You also must pass msize if you used stackmem because we going to recheck if we will fit.
 
 char ***parse_tssb(ssbu *u);

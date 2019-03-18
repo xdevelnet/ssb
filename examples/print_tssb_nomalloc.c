@@ -26,16 +26,24 @@
 #include <libtssb.c>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/resource.h>
+
+#define STACK_REDUNDANCE 1024
 
 int main(int argc, char **argv) {
 	if (argc < 2) return EXIT_FAILURE;
 	ssbu u = check_tssb(argv[1]);
-	if (u.errreasonstr != NULL) return printf("%s\n", u.errreasonstr);
+	if (u.errreasonstr != NULL) return fprintf(stderr, "%s\n", u.errreasonstr), EXIT_FAILURE;
+	// just getrlimit() passing through...
+	struct rlimit l;
+	if (getrlimit(RLIMIT_STACK, &l) < 0) return perror("GETRLIMIT FAILED!"), EXIT_FAILURE;
+	size_t usable_stack_amount = l.rlim_cur - STACK_REDUNDANCE;
+	if (TSSB_CALCULATE(u) > usable_stack_amount) return fprintf(stderr, "TOO HUGE FOR AVAILABLE STACK"), EXIT_SUCCESS;
 	char buffer[TSSB_CALCULATE(u)];
 	u = prepare_tssb(argv[1], buffer, TSSB_CALCULATE(u));
 	if (u.errreasonstr != NULL) return printf("%s\n", u.errreasonstr);
 	char ***table = parse_tssb(&u);
-	if (table == NULL) return printf("%s\n", u.errreasonstr);
+	if (table == NULL) return fprintf(stderr, "%s\n", u.errreasonstr), EXIT_FAILURE;
 
 	size_t row = 0, col = 0;
 
@@ -43,7 +51,7 @@ int main(int argc, char **argv) {
 		write(STDOUT_FILENO, table[row][col], GETU16SSB(table[row][col]));
 		write(STDOUT_FILENO, " ", 1);
 		col++;
-		if (col >= u.cols) {
+		if (col == u.cols) {
 			row++;
 			col = 0;
 			write(STDOUT_FILENO, "\n", 1);
