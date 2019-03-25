@@ -32,7 +32,7 @@
 
 int main(int argc, char **argv) {
 	if (argc < 2) return EXIT_FAILURE;
-	ssbu u = check_tssb(argv[1]);
+	tssb u = check_tssb(argv[1]);
 	if (u.errreasonstr != NULL) return fprintf(stderr, "%s\n", u.errreasonstr), EXIT_FAILURE;
 	// just getrlimit() passing through...
 	struct rlimit l;

@@ -36,26 +36,26 @@ typedef struct {
 	size_t cols; // amount of cols, declared in tssb header. Should be used by library user
 	size_t sizestorage; // how much bytes we need for storing value of binary sizes. Must not be used by user
 	char *source; // pointer to memory area for filename and, later, to memory are with tssb. Must not be used by user
-} ssbu;
+} tssb;
 
-ssbu check_tssb(const char *filename);
+tssb check_tssb(const char *filename);
 // above
 // check if it's ssb file and retrieve size in bytes, number of rows, numbers of cols
 
-ssbu prepare_tssb(const char *filename, void *stackmem, size_t msize);
+tssb prepare_tssb(const char *filename, void *stackmem, size_t msize);
 // above
 // Evaluates requered preparations before parsing
 // Pass non-NULL value to stackmem if you already have memory space for our needs.
 //     How much memory will be used from stackmem? Here is its: 8 + u.size + u.rows * sizeof(void *) + (u.cols + 1) * u.rows * sizeof(void *). You also can use TSSB_CALCULATE macros for that.
 //     You also must pass msize if you used stackmem because we going to recheck if we will fit.
 
-char ***parse_tssb(ssbu *u);
+char ***parse_tssb(tssb *p);
 // above
 // Returns twodimensional array with pointers memory objects.
 // When you are done with this data and you were not passed non-NULL pointer as an stackmem argument from
 // previous prepare_tssb() call, use free() on this pointer.
 
-size_t getssbsize(void *cell, ssbu u, size_t *var);
+size_t getssbsize(void *cell, tssb u, size_t *var);
 // above
 // Moves to size_t variable amount of bytes which are stored in choosen cell.
 // Returns amount of bytes which are stored in choosen cell.

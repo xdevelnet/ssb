@@ -126,7 +126,7 @@ static inline ssize_t nposix_pread(int fd, void *buf, size_t count, off_t offset
 	#endif
 }
 
-static inline unsigned check_signature(int fd, ssbu *u) {
+static inline unsigned check_signature(int fd, tssb *u) {
 	// above
 	// Check TSSB signature.
 	// If signature is not correct - 0 will be returned.
@@ -148,7 +148,7 @@ static inline unsigned check_signature(int fd, ssbu *u) {
 	return 0;
 }
 
-static inline bool get_ssb_dimensions(int fd, ssbu *u) {
+static inline bool get_ssb_dimensions(int fd, tssb *u) {
 	// above
 	// Retrieve amount of cols and rows from TSSB file
 
@@ -185,12 +185,12 @@ static inline bool get_ssb_dimensions(int fd, ssbu *u) {
 // above
 // Like macro above, but instead of setting POSIX errno string we're using user's string.
 
-ssbu prepare_tssb(const char *filename, void *stackmem, size_t msize) {
+tssb prepare_tssb(const char *filename, void *stackmem, size_t msize) {
 	// above
 	// Prepares required space for working with TSSB file, performs every (probably) possible check/recheck for
 	// weird or bad situations that may happen.
 
-	ssbu u = {.errreasonstr = NULL};
+	tssb u = {.errreasonstr = NULL};
 
 	int fd = open(filename, O_RDONLY);
 	if (fd < 0) POSIXERR_AND_JUMP(ret);
@@ -220,8 +220,8 @@ ssbu prepare_tssb(const char *filename, void *stackmem, size_t msize) {
 	ret: return u;
 }
 
-ssbu check_tssb(const char *filename) {
-	ssbu u = {.errreasonstr = NULL};
+tssb check_tssb(const char *filename) {
+	tssb u = {.errreasonstr = NULL};
 
 	int fd = open(filename, O_RDONLY);
 	if (fd < 0) POSIXERR_AND_JUMP(ret);
@@ -241,7 +241,7 @@ static inline void *alignto(void *addr, size_t alignment) {
 	return a;
 }
 
-static inline char ***set_2ndptrs(ssbu u) {
+static inline char ***set_2ndptrs(tssb u) {
 	// above
 	// Handy procedure that sets pointers for first dimension for twodimensional array. Sets last element of second
 	// dimension to NULL
@@ -261,12 +261,12 @@ static inline char ***set_2ndptrs(ssbu u) {
 	return t;
 }
 
-char ***parse_tssb(ssbu *tssb) {
+char ***parse_tssb(tssb *p) {
 	// above
 	// Evaluates parsing of TSSB object and points every pointer from twodimensional array to corresponding block.
 
-	if (tssb->errreasonstr != NULL) return NULL;
-	ssbu u = *tssb;
+	if (p->errreasonstr != NULL) return NULL;
+	tssb u = *p;
 	const uint8_t newline_sigil[8] = {UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX, UCHAR_MAX};
 	char ***t = set_2ndptrs(u);
 	size_t currentpos = strlen(signatures[u.sizestorage]) + sizeof(uint32_t) + sizeof(uint32_t);
@@ -293,11 +293,11 @@ char ***parse_tssb(ssbu *tssb) {
 
 	return t;
 	parse_failure:
-	tssb->errreasonstr = err_parse_fail;
+	p->errreasonstr = err_parse_fail;
 	return NULL;
 }
 
-size_t getssbsize(void *cell, ssbu u, size_t *var) {
+size_t getssbsize(void *cell, tssb u, size_t *var) {
 	cell = (char *) cell - u.sizestorage;
 	*var = 0;
 	if (IS_BIG_ENDIAN) memcpy((char *) var + (sizeof(size_t) - u.sizestorage), cell, u.sizestorage); else memcpy(var, cell, u.sizestorage);

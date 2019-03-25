@@ -30,7 +30,7 @@
 int main(int argc, char **argv) {
 	if (argc < 2) return EXIT_FAILURE;
 
-	ssbu u = prepare_tssb(argv[1], NULL, 0);
+	tssb u = prepare_tssb(argv[1], NULL, 0);
 	if (u.errreasonstr != NULL) return printf("%s\n", u.errreasonstr);
 	char ***table = parse_tssb(&u);
 	if (table == NULL) return printf("%s\n", u.errreasonstr);
