@@ -38,8 +38,8 @@ However you should remember that string is only one of many ways of data represe
 
 ### Using libtssb
 
-An example(s) is stored in examples directory from libtssb subproject.
-API and its description is located in tssb.h header file.
+An example(s) is stored in examples directory.
+API and its description is located in libtssb.h header file.
 You can use libssb in your project just by including libssb.c to your source code, or by including libssb.h and linking with precompiled libssb library.
 
 ## ESSB
