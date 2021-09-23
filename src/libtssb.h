@@ -34,7 +34,7 @@ typedef struct {
 	size_t size; // the actual size in byetes of whole tssb file/ojbect. May be used by library user if he's planning to use stack allocation
 	size_t rows; // amount of rows, declared in tssb header. Should be used by library user
 	size_t cols; // amount of cols, declared in tssb header. Should be used by library user
-	size_t sizestorage; // how much bytes we need for storing value of binary sizes. Must not be used by user
+	size_t sizestorage; // how much bytes we need for storing value of binary sizes. Can be used by user to determine which macro from GETU**SSB family can be used
 	char *source; // pointer to memory area for filename and, later, to memory are with tssb. Must not be used by user
 } tssb;
 
@@ -60,10 +60,10 @@ size_t getssbsize(void *cell, tssb u, size_t *var);
 // Moves to size_t variable amount of bytes which are stored in choosen cell.
 // Returns amount of bytes which are stored in choosen cell.
 
-#define GETU08SSB(cell) (*((uint8_t *) ((char *) cell - sizeof(uint8_t))))
-#define GETU16SSB(cell) (*((uint16_t *) ((char *) cell - sizeof(uint16_t))))
-#define GETU32SSB(cell) (*((uint32_t *) ((char *) cell - sizeof(uint32_t))))
-#define GETU64SSB(cell) (*((uint64_t *) ((char *) cell - sizeof(uint64_t))))
+#define GETU08SSB(cell) (*((uint8_t *) ((char *) (cell) - sizeof(uint8_t))))
+#define GETU16SSB(cell) (*((uint16_t *) ((char *) (cell) - sizeof(uint16_t))))
+#define GETU32SSB(cell) (*((uint32_t *) ((char *) (cell) - sizeof(uint32_t))))
+#define GETU64SSB(cell) (*((uint64_t *) ((char *) (cell) - sizeof(uint64_t))))
 // above
 // Immediatly retrieve amount of bytes of data, which is stored in choosen cell. You MUST use only correct correct macros,
 // otherwise returned value will be definitely incorrect. This set of macroses is useful when you know (at compile time)

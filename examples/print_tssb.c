@@ -31,20 +31,21 @@ int main(int argc, char **argv) {
 	if (argc < 2) return EXIT_FAILURE;
 
 	tssb u = prepare_tssb(argv[1], NULL, 0);
-	if (u.errreasonstr != NULL) return printf("%s\n", u.errreasonstr);
+	if (u.errreasonstr != NULL) return printf("%s\n", u.errreasonstr), EXIT_FAILURE;
+	if (u.sizestorage != sizeof(uint16_t)) return printf("sorry, this demo is expecting 16bit tssb storage\n"), EXIT_SUCCESS;
 	char ***table = parse_tssb(&u);
-	if (table == NULL) return printf("%s\n", u.errreasonstr);
+	if (table == NULL) return printf("%s\n", u.errreasonstr), EXIT_FAILURE;
 
 	size_t row = 0, col = 0;
 
 	while (row < u.rows) {
 		write(STDOUT_FILENO, table[row][col], GETU16SSB(table[row][col]));
-		write(STDOUT_FILENO, " ", 1);
+		write(STDOUT_FILENO, " ", sizeof(char));
 		col++;
 		if (col >= u.cols) {
 			row++;
 			col = 0;
-			write(STDOUT_FILENO, "\n", 1);
+			write(STDOUT_FILENO, "\n", sizeof(char));
 		}
 	}
 

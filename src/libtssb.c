@@ -153,7 +153,7 @@ static inline bool get_ssb_dimensions(int fd, tssb *u) {
 	// Retrieve amount of cols and rows from TSSB file
 
 	uint32_t rowncol[2];
-	ssize_t got = nposix_pread(fd, rowncol, sizeof(rowncol), strlen(signatures[u->sizestorage]));
+	ssize_t got = nposix_pread(fd, rowncol, sizeof(rowncol), (off_t) strlen(signatures[u->sizestorage]));
 	if (got < 0) {
 		u->errreasonstr = strerror(errno);
 		return false;
