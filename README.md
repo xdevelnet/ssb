@@ -26,7 +26,6 @@ The way of storing data depends on the signature. Currently available signatures
 |`SSBTRANSLATI0NS_1`|Similar ↑|Similar ↑, but 2 bytes with uint16_t type little endian|Similar ↑, but max. data size is 65534|
 |`SSBTRANSLATI0NS_2`|Similar ↑|Similar ↑, but 4 bytes with uint32_t type little endian|Similar ↑, but max. data size is 4294967294|
 |`SSBTRANSLATI0NS_3`|Similar ↑|Similar ↑, but 8 bytes with uint64_t type little endian|Similar ↑, but max. data size is 18446744073709551614|
-|`SSBTEMPLATE0`|There are two 4 byte blocks after the signature. They contain the info about number of records and amount of bytes that they takes. Data type: uint32_t little endian|Records themselves in linear sequence: right after other. Possible spare space for aligning. Table with sizes of each record (int32_t little endian each cell)|Maximum size of each record is limited to 2^32/2-1|
 ## libtssb
 
 libtssb is a TSSB implementation from TSSB developer.
@@ -44,16 +43,19 @@ You can use libssb in your project just by including libssb.c to your source cod
 
 ## ESSB
 
-ESSB is a format that stores data just like in pure SSB, but some data records (we're going to call them "keys") are intended for special usage. Such records must be detected with checking the size of record. If it's negative, then current record is "key".
+ESSB is a format that stores data just like in pure SSB, but some data records_amount (we're going to call them "keys") are intended for special usage. Such records_amount must be detected with checking the size of record. If it's negative, then current record is "key".
 Originally, ESSB was created to use it as storage for templates, so ESSB parser implementations can provide mechanism to particular processing.
 
-Right after signature there is two 4 byte blocks. They contain information about total amount of records and storage that takes records themselves (without sizes of each record).
-Then, records themselves are placed in sequence, right after other.
-Then, 1dimentional table with sizes of each record are located. There could be some space between table and records in favor of 4 byte aligning.
+Right after signature there is two 4 byte blocks. They contain information about total amount of records_amount and storage that takes records_amount themselves (without sizes of each record).
+Then, records_amount themselves are placed in sequence, right after other.
+Then, 1dimentional table with sizes of each record are located. There could be some space between table and records_amount in favor of 4 byte aligning.
 
+|Signature|Metadata|Data storing scheme|Limitations|
+|---|---|---|---|
+|`SSBTEMPLATE0`|There are two 4 byte blocks after the signature. They contain the info about number of records_amount and amount of bytes that they takes. Data type: uint32_t little endian|Records themselves in linear sequence: right after other. Possible spare space for aligning. Table with sizes of each record (int32_t little endian each cell)|Maximum size of each record is limited to 2^32/2-1|
 ## libessb
 
-currently not implemented
+Development in progress
 
 ### See also
 

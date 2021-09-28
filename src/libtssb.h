@@ -23,8 +23,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdlib.h> // size_t
-#include <stdint.h> // uintblablabla_t
+#ifndef PROTECTOR_LIBTSSB_H
+#define PROTECTOR_LIBTSSB_H
+
+#include <stdint.h>
+#include <stdlib.h>
 
 unsigned long max_acceptable_dimension_size = 150; // how BIG any tssb table dimension could be? Modify it if you need.
 #define TSSB_CALCULATE(structure) (8 + structure.size + structure.rows * sizeof(void *) + (structure.cols + 1) * structure.rows * sizeof(void *))
@@ -70,3 +73,6 @@ size_t getssbsize(void *cell, tssb u, size_t *var);
 // amount of bytes for storing sizes in SSB object. Overall, they are generally should be faster then getssbsize().
 // You probably should take care of using these macroses because dereferenced pointers will be not aligned to (sizeof *),
 // so it's better to compile libraries with -O3 and your programs with -O2. Or use getssbisize() function instead.
+
+
+#endif // PROTECTOR_LIBTSSB_H

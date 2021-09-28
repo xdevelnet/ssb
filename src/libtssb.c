@@ -23,30 +23,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef PROTECTOR_LIBTSSB_C
+#define PROTECTOR_LIBTSSB_C
+
+#include <libssb_common.c>
 #include <libtssb.h>
-#include <stdbool.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <iso646.h>
-#include <limits.h>
-
-#define SSB_ALIGN_FUCKING_POINTERS 8 // When you are operating with pointers which storing in manually allocated space
-// and they are using in loop...
-// And you (or me?) decides to use -O3, so compiler will aggressively optimize that loop, you may be TOTALLY SCREWED.
-// So let's use a few more bytes to avoid completely dumb segfaults that happens out of blue.
-// Thank god we have -fsanitize=undefined which is MUCH better in clang rather then in gcc.
-// Because when I compiled my code with gcc and -fsantitize=undefined there was no segfaults.
-
-#if !defined(strizeof)
-	#define strizeof(a) (sizeof(a)-1)
-#endif
-
-#if !defined(IS_BIG_ENDIAN)
-	#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
-#endif
 
 extern unsigned long max_acceptable_dimension_size;
 
@@ -54,7 +35,6 @@ const char err_file_is_changed[] = "File is changed during program execution";
 const char err_not_a_valid_tssb[] = "This is not a valid tssb file.";
 const char err_out_of_table[] = "Proposed table size is out of acceptable size.";
 const char err_parse_fail[] = "An error occured during parsing.";
-const char err_parse_not_available[] = "You are not able to parse tssb object with errors.";
 
 const char tssb_signature_08bit[] = "SSBTRANSLATI0NS_0";
 const char tssb_signature_16bit[] = "SSBTRANSLATI0NS_1";
@@ -73,58 +53,6 @@ const char * const signatures[] = { // signatures must be regular null-terminate
 	tssb_signature_64bit, // 8
 	NULL
 };
-
-void swapbytes_priv_ssb(void *pv, size_t n) {
-	// above
-	// Swap bytes in custom length block
-
-	if (!n) return;
-
-	char *p = pv;
-	size_t lo, hi;
-	for(lo = 0, hi = n - 1; hi > lo; lo++, hi--) {
-		char tmp = p[lo];
-		p[lo] = p[hi];
-		p[hi] = tmp;
-	}
-}
-
-int fstat_getsize(int fd, size_t *size) {
-	// above
-	// Retrieve size of file from _fd_ file descriptor and save it to _size_ addr.
-	// Return value is same as you gonna use fstat()
-
-	struct stat st;
-	int rval = fstat(fd, &st);
-	if (rval < 0) return rval;
-	*size = st.st_size;
-	return rval;
-}
-
-static inline void *mcalloc(size_t size) {
-	// above
-	// It is like malloc, but everything is initialized to zero.
-	// in other words, mcalloc() is like calloc, but without redundant argument.
-
-	return calloc(sizeof(char), size); // whatever
-}
-
-static inline ssize_t nposix_pread(int fd, void *buf, size_t count, off_t offset) {
-	// above
-	// it's pread() when available
-	// If system haven't required standard, then use non-atomic usage of lseek() and read().
-
-	const signed posix_fail_val = -1;
-	#if (_XOPEN_SOURCE) >= 500 || (_POSIX_C_SOURCE) >= 200809L
-		return pread(fd, buf, count, offset);
-	#else
-		off_t backup = lseek(fd, 0, SEEK_CUR);
-		if (backup < 0 or lseek(fd, offset, SEEK_SET) < 0) return posix_fail_val;
-		ssize_t rval = read(fd, buf, count); // for various reasons there is no reason to check return values of these calls
-		lseek(fd, backup, SEEK_SET); // e.g. do we need to restore if read() will fail? Ughh... yes? At least an attempt?
-		return rval;
-	#endif
-}
 
 static inline unsigned check_signature(int fd, tssb *u) {
 	// above
@@ -175,7 +103,9 @@ static inline bool get_ssb_dimensions(int fd, tssb *u) {
 	return true;
 }
 
-#define POSIXERR_AND_JUMP(a) {u.errreasonstr = strerror(errno); goto a;}
+#if !defined(POSIXERR_AND_JUMP)
+	#define POSIXERR_AND_JUMP(a) {u.errreasonstr = strerror(errno); goto a;}
+#endif
 // above
 // Useful macro for prepare_tssb() function that avoid redundant huge block of code
 // Probably could be avoided, but code's beauty is very subjective thing.
@@ -307,3 +237,6 @@ size_t getssbsize(void *cell, tssb u, size_t *var) {
 //~ void getu16ssbsize(void *cell, void *var) {
 	//~ * (uint16_t *) var = *((uint16_t *) ((char *) cell - sizeof(uint16_t)));
 //~ }
+
+
+#endif // PROTECTOR_LIBTSSB_C
