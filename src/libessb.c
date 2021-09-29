@@ -37,10 +37,6 @@
 #define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 #endif
 
-#if !defined(POSIXERR_AND_JUMP)
-#define POSIXERR_AND_JUMP(a) {u.errreasonstr = strerror(errno); goto a;}
-#endif
-
 const char essb_signature_0[] = "SSBTEMPLATE0";
 
 const char err_not_a_valid_essb[] = "This is not a valid essb file.";
@@ -65,7 +61,7 @@ static bool check_signature(essb *e, const struct essb_format *format) {
 	e->records_total_size = format->records_total_size;
 	return true;
 }
-
+#if defined(SSB_POSIX_0)
 static int check_file_signature(essb *e, const void *p) {
 
 	int fd = open(p, O_RDONLY);
@@ -95,6 +91,7 @@ static int check_file_signature(essb *e, const void *p) {
 
 	return fd;
 }
+#endif // SSB_POSIX_0
 
 static void parse(essb *e) {
 	char *fly = e->records + e->records_total_size;
@@ -126,6 +123,7 @@ bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
 
 	switch (t) {
 	case SOURCE_FILE:
+#if defined(SSB_POSIX_0)
 		fd = check_file_signature(e, format);
 		if (fd < 0) return false;
 		ssize_t expectations = ESSB_CALCULATE_FILE(*e);
@@ -141,7 +139,9 @@ bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
 		}
 		parse(e);
 		return true;
-
+#endif // SSB_POSIX_0
+		e->errreasonstr = err_not_supported;
+		return false;
 	case SOURCE_ADDR:
 		if (check_signature(e, format) == false) return false;
 		if (stackmem) e->records = stackmem; else e->records = malloc(ESSB_CALCULATE(*e));
