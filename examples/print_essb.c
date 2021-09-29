@@ -43,8 +43,9 @@ int main(int argc, char **argv) {
 
 	setbuf(stdout, NULL);
 	for (unsigned i = 0; i < e->records_amount; i++) {
+		printf("e->record_size[%u] = %d ; e->record_seek[%u] = %d ; Data: ", i, e->record_size[i], i, e->record_seek[i]);
 		write(STDOUT_FILENO, &e->records[e->record_seek[i]], ABSOLUTE(e->record_size[i]));
-		printf("e->record_size[%u] = %d   ;   e->record_seek[%u] = %d \n", i, e->record_size[i], i, e->record_seek[i]);
+		write(STDOUT_FILENO, "\n", 1);
 	}
 
 	free(e->records);

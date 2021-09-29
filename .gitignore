@@ -1,5 +1,9 @@
 ### C ###
 # Prerequisites
+*
+!*.*
+!*/
+
 *.d
 
 # Object files

@@ -42,6 +42,7 @@ const char essb_signature_0[] = "SSBTEMPLATE0";
 const char err_not_a_valid_essb[] = "This is not a valid essb file.";
 const char err_invalid_arg[] = "Invalid argument(s).";
 const char err_not_supported[] = "This feature is not supported or disabled.";
+const char err_essb_reuse[] = "This essb object is already on use. If it's not, memset() it to zero before reuse.";
 
 struct essb_format {
 	char signature[strizeof(essb_signature_0)];
@@ -113,6 +114,11 @@ bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
 
 	if (source == NULL) {
 		e->errreasonstr = err_invalid_arg;
+		return false;
+	}
+
+	if (e->records) {
+		e->errreasonstr = err_essb_reuse;
 		return false;
 	}
 
