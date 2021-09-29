@@ -28,18 +28,26 @@
 #include <stdio.h>
 #include <string.h>
 
+#define ABSOLUTE(a) (a < 0 ? (-(a)) : (a))
+
 int main(int argc, char **argv) {
 	if (argc < 2) return EXIT_FAILURE;
 
-	essb e;
+	essb e[1];
 
-	parse_essb(&e, SOURCE_FILE, argv[1], NULL);
-	if (e.errreasonstr != NULL) {
-		printf("Error during parsing essb: %s", e.errreasonstr);
+	parse_essb(e, SOURCE_FILE, argv[1], NULL);
+	if (e->errreasonstr != NULL) {
+		printf("Error during parsing essb: %s", e->errreasonstr);
 		return EXIT_FAILURE;
 	}
 
-	free(e.records);
+	setbuf(stdout, NULL);
+	for (unsigned i = 0; i < e->records_amount; i++) {
+		write(STDOUT_FILENO, &e->records[e->record_seek[i]], ABSOLUTE(e->record_size[i]));
+		printf("e->record_size[%u] = %d   ;   e->record_seek[%u] = %d \n", i, e->record_size[i], i, e->record_seek[i]);
+	}
+
+	free(e->records);
 
 	return EXIT_SUCCESS;
 }

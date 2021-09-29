@@ -45,6 +45,7 @@ const char essb_signature_0[] = "SSBTEMPLATE0";
 
 const char err_not_a_valid_essb[] = "This is not a valid essb file.";
 const char err_invalid_arg[] = "Invalid argument(s).";
+const char err_not_supported[] = "This feature is not supported or disabled.";
 
 struct essb_format {
 	char signature[strizeof(essb_signature_0)];
@@ -95,6 +96,19 @@ static int check_file_signature(essb *e, const void *p) {
 	return fd;
 }
 
+static void parse(essb *e) {
+	char *fly = e->records + e->records_total_size;
+	fly += ESSB_CALCULATE_RESIDUE(*e);
+	e->record_size = (void *) fly;
+	fly += e->records_amount * sizeof(int32_t);
+	e->record_seek = (void *) fly;
+	int32_t total = 0;
+	for (unsigned i = 0; i < e->records_amount; i++) {
+		e->record_seek[i] = total;
+		total += e->record_size[i] < 0 ? - e->record_size[i] : e->record_size[i];
+	}
+}
+
 bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
 	if (e == NULL) {
 		return false;
@@ -125,29 +139,15 @@ bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
 			}
 			return false;
 		}
-		char *fly = e->records + e->records_total_size;
-		fly += ESSB_CALCULATE_RESIDUE(*e);
-		e->record_size = (void *) fly;
-		fly += e->records_amount * sizeof(int32_t);
-		e->record_seek = (void *) fly;
-		int32_t total = 0;
-		for (unsigned i = 0; i < e->records_amount; i++) {
-			e->record_seek[i] = total;
-			total += e->record_size[i] < 0 ? - e->record_size[i] : e->record_size[i];
-		}
-//		setbuf(stdout, NULL);
-//		for (unsigned i = 0; i < e->records_amount; i++) {
-//			printf("e->record_size[%u] = %d   ;   e->record_seek[%u] = %d \n", i, e->record_size[i], i, e->record_seek[i]);
-//		}
-
+		parse(e);
 		return true;
 
 	case SOURCE_ADDR:
-		return 0;
 		if (check_signature(e, format) == false) return false;
 		if (stackmem) e->records = stackmem; else e->records = malloc(ESSB_CALCULATE(*e));
 		memcpy(e->records, format->records, ESSB_CALCULATE(*e));
-		return false;
+		parse(e);
+		return true;
 
 	case SOURCE_ADDR_INPLACE:
 		if (stackmem) {
@@ -156,8 +156,12 @@ bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
 		}
 		if (check_signature(e, format) == false) return false;
 		e->records = format->records;
-
+		parse(e);
 		return true;
+
+	case SOURCE_WEB:
+		e->errreasonstr = err_not_supported;
+		return false;
 
 	default:
 		e->errreasonstr = err_invalid_arg;
