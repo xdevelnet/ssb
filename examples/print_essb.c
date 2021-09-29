@@ -33,7 +33,7 @@
 int main(int argc, char **argv) {
 	if (argc < 2) return EXIT_FAILURE;
 
-	essb e[1];
+	essb e[1] = {};
 
 	parse_essb(e, SOURCE_FILE, argv[1], NULL);
 	if (e->errreasonstr != NULL) {
