@@ -56,7 +56,7 @@ struct essb_format {
 };
 
 static bool check_signature(essb *e, const struct essb_format *format) {
-	if (format->records_amount == 0 || format->records_total_size == 0 ||
+	if (format->records_amount == 0 or format->records_total_size == 0 or
 		memcmp(format->signature, essb_signature_0, strizeof(essb_signature_0)) != 0) {
 		e->errreasonstr = err_not_a_valid_essb;
 		return false;
