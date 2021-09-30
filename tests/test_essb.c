@@ -140,12 +140,15 @@ int main(int argc, char **argv) {
 	if (parse_essb(e + 1, SOURCE_ADDR, binary, NULL) == false) {printf("%s\n", e[1].errreasonstr); retval = EXIT_FAILURE; goto exit;}
 	TEST("2", consistency_check(e + 0));
 
-	char temp[350];
-	if (parse_essb(e + 2, SOURCE_ADDR, binary, temp) == false) {printf("%s\n", e[2].errreasonstr); retval = EXIT_FAILURE; goto exit;}
+	if (check_essb(SOURCE_ADDR, binary) == 0) {printf("Failed to check_essb(SOURCE_ADDR, binary)\n"); retval = EXIT_FAILURE; goto exit;}
+	char *temp = malloc(check_essb(SOURCE_ADDR, binary));
+	if (parse_essb(e + 2, SOURCE_ADDR, binary, temp) == false) {printf("%s\n", e[2].errreasonstr); free(temp); retval = EXIT_FAILURE; goto exit;}
 	TEST("3", consistency_check(e + 0));
+	free(temp);
 
-	memcpy(temp, binary, sizeof(binary));
-	if (parse_essb(e + 3, SOURCE_ADDR_INPLACE, temp, temp) == false) {printf("%s\n", e[2].errreasonstr); retval = EXIT_FAILURE; goto exit;}
+	char temp2[350];
+	memcpy(temp2, binary, sizeof(binary));
+	if (parse_essb(e + 3, SOURCE_ADDR_INPLACE, temp2, temp2) == false) {printf("%s\n", e[2].errreasonstr); retval = EXIT_FAILURE; goto exit;}
 	TEST("3", consistency_check(e + 0));
 
 	exit:
