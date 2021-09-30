@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
 
 	int retval = EXIT_SUCCESS;
 
-	if (prepare_file_and_essb(e + 0) == false) goto fail;
+	if (prepare_file_and_essb(e + 0) == false) goto exit;
 	TEST("1", consistency_check(e + 0));
 
 	if (parse_essb(e + 1, SOURCE_ADDR, binary, NULL) == false) {printf("%s\n", e[1].errreasonstr); retval = EXIT_FAILURE; goto exit;}
