@@ -26,10 +26,6 @@
 #ifndef PROTECTOR_LIBESSB_H
 #define PROTECTOR_LIBESSB_H
 
-#define ESSB_CALCULATE_RESIDUE(s) ((s).records_total_size % 4 ? 4 - (s).records_total_size % 4 : 0)
-#define ESSB_CALCULATE(structure) ((structure).records_total_size + ESSB_CALCULATE_RESIDUE(structure) + (structure).records_amount * sizeof(int32_t) * 2)
-#define ESSB_CALCULATE_FILE(structure) ((structure).records_total_size + ESSB_CALCULATE_RESIDUE(structure) + (structure).records_amount * sizeof(int32_t))
-
 typedef struct {
 	const char *errreasonstr; // if something BAD happens, here will be pointer to null terminated string with appropriate error reason
 	char *records;
@@ -39,12 +35,29 @@ typedef struct {
 	int32_t *record_seek;
 } essb;
 
+#define ESSB_RETRIEVE(essb_object, number) ((essb_object).records+(essb_object).record_seek[number])
+
 typedef enum {SOURCE_FILE, SOURCE_ADDR, SOURCE_ADDR_INPLACE, SOURCE_WEB} source_type;
 
-bool parse_essb(essb *e, source_type t, void *source, void *stackmem);
+bool parse_essb(essb *e, source_type t, const void *source, void *stackmem);
 // above
-// evaluate parsing essb file or data.
-// Pass non-NULL value to stackmem if you already have memory space for our needs.
-//     How much memory will be used from stackmem? User ESSB_CALCULATE() for that.
+// depending on source_type, this function evaluates different actions
+// If SOURCE_FILE:         Read data from file and place parsed data to freshly allocated memory.
+//                         If _stackmem_ has passed, place it there instead of allocation
+// If SOURCE_ADDR:         Just like SOURCE_FILE, but read data from memory address instead of file.
+//                         Therefore, instead of filename, pass memory address to _source_ pointer
+// If SOURCE_ADDR_INPLACE: Evaluate reading AND placing parsed result from/in same memory area
+//                         In order to use this feature, pass same pointer to _source_ and to _stackmem_
+// If SOURCE_WEB:          Just like SOURCE_FILE, but instead of reading from file, attempt to download
+//                         template from http or https resource. None of file will be written, library
+//                         will attempt to use as less memory as possible.
+// All parsing results are available through essb structure, which must be zeroed and it's address must
+// be passed to parse_essb()
+//
+// If you want to know how much memory do you need to pass for _stackmem_, use check_essb() for that
+
+uint32_t check_essb(source_type t, const void *source);
+// above
+// evaluates reading from source just to retrieve amount of bytes that you'll need for stackmem memory
 
 #endif // PROTECTOR_LIBESSB_H

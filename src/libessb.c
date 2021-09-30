@@ -37,6 +37,10 @@
 #define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 #endif
 
+#define ESSB_CALCULATE_RESIDUE(s) ((s).records_total_size % 4 ? 4 - (s).records_total_size % 4 : 0)
+#define ESSB_CALCULATE(structure) ((structure).records_total_size + ESSB_CALCULATE_RESIDUE(structure) + (structure).records_amount * sizeof(int32_t) * 2)
+#define ESSB_CALCULATE_FILE(structure) ((structure).records_total_size + ESSB_CALCULATE_RESIDUE(structure) + (structure).records_amount * sizeof(int32_t))
+
 const char essb_signature_0[] = "SSBTEMPLATE0";
 
 const char err_not_a_valid_essb[] = "This is not a valid essb file.";
@@ -107,7 +111,25 @@ static void parse(essb *e) {
 	}
 }
 
-bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
+uint32_t check_essb(source_type t, const void *source) {
+	if (source == NULL) return 0;
+
+	essb e = {.records_total_size = 0};
+	switch (t) {
+	case SOURCE_FILE:
+		close(check_file_signature(&e, source));
+		return ESSB_CALCULATE(e);
+	case SOURCE_ADDR:
+	case SOURCE_ADDR_INPLACE:
+		check_signature(&e, source);
+		return ESSB_CALCULATE(e);
+	case SOURCE_WEB:
+	default:
+		return 0;
+	}
+}
+
+bool parse_essb(essb *e, source_type t, const void *source, void *stackmem) {
 	if (e == NULL) {
 		return false;
 	}
@@ -125,7 +147,7 @@ bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
 	e->errreasonstr = NULL;
 
 	int fd;
-	struct essb_format *format = source;
+	const struct essb_format *format = source;
 
 	switch (t) {
 	case SOURCE_FILE:
@@ -156,12 +178,12 @@ bool parse_essb(essb *e, source_type t, void *source, void *stackmem) {
 		return true;
 
 	case SOURCE_ADDR_INPLACE:
-		if (stackmem) {
+		if (stackmem == NULL) {
 			e->errreasonstr = err_invalid_arg;
 			return false;
 		}
 		if (check_signature(e, format) == false) return false;
-		e->records = format->records;
+		e->records = stackmem;
 		parse(e);
 		return true;
 

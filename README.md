@@ -68,6 +68,7 @@ Errata for existing libraries implementations:
 1. libtssb can't work without POSIX. In future, if I will need in-memory support in order to get support on MCU, I will fix it
 2. libessb is expecting .ssb files which generate on same platform. In other words, ssb with essb format inside generated on big endian platfor will not work on little endian platform. And vice versa. That small flaw will be fixed once I'll be interested in it.
 3. Currently libessb is not support retrieving data from internet.
+4. Currently libessb performs only basic checks for ESSB format correctness. Therefore, if any invalid data would be inside - it may cause crash or data corruption. Be careful with that. 
 
  * https://github.com/xdevelnet/tcsv2tssb - csv to TSSB converter
  * https://github.com/xdevelnet/template2essb - template to ESSB converter
