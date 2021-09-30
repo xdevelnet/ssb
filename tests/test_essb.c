@@ -31,39 +31,6 @@
 #include <errno.h>
 #include <execinfo.h>
 
-#define RETURN_IF_FAIL(expr)      do {                  \
- if (!(expr))                                           \
- {                                                      \
-         fprintf(stderr,                                \
-                "file %s: line %d (%s): precondition `%s' failed.", \
-                __FILE__,                                           \
-                __LINE__,                                           \
-                __PRETTY_FUNCTION__,                                \
-                #expr);                                             \
-         print_stack_trace(2);                                      \
-         return;                                                    \
- };               } while(0)
-#define RETURN_VAL_IF_FAIL(expr, val)  do {                         \
- if (!(expr))                                                       \
- {                                                                  \
-        fprintf(stderr,                                             \
-                "file %s: line %d (%s): precondition `%s' failed.",     \
-                __FILE__,                                               \
-                __LINE__,                                               \
-                __PRETTY_FUNCTION__,                                    \
-                #expr);                                                 \
-         print_stack_trace(2);                                          \
-         return val;                                                    \
- };               } while(0)
-
-void print_stack_trace(int fd)
-{
-	void *array[256];
-	backtrace_symbols_fd(array, backtrace (array, 256), fd);
-}
-
-#define ABSOLUTE(a) (a < 0 ? (-(a)) : (a))
-
 const char binary[108] = "SSBTEMPLATE0\x09\x00\x00\x00\x34\x00\x00\x00\x46irst text1sttagSCNDSABCD EFGBEBRASKOTINYAKI_TAKI!z\n\x0A\x00\x00\x00\xFA\xFF\xFF\xFF\x04\x00\x00\x00\xFF\xFF\xFF\xFF\xF8\xFF\xFF\xFF\x05\x00\x00\x00\xF0\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x01\x00\x00\x00";
 //[0] 10   0
 //[1] -6  10
