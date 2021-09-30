@@ -1,0 +1,22 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Ubuntu Packages
+      run: sudo apt-get -qq update; sudo apt-get install -qq -y valgrind
+    - name: Make tests
+      working-directory: tests
+      run: |
+        make
+        valgrind ./test_essb
