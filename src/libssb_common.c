@@ -77,12 +77,11 @@ inline ssize_t nposix_pread(int fd, void *buf, size_t count, off_t offset) {
 	// it's pread() when available
 	// If system haven't required standard, then use non-atomic usage of lseek() and read().
 
-	const signed posix_fail_val = -1;
 #if (_XOPEN_SOURCE) >= 500 || (_POSIX_C_SOURCE) >= 200809L
 	return pread(fd, buf, count, offset);
 #else
 	off_t backup = lseek(fd, 0, SEEK_CUR);
-	if (backup < 0 or lseek(fd, offset, SEEK_SET) < 0) return posix_fail_val;
+	if (backup < 0 or lseek(fd, offset, SEEK_SET) < 0) return POSIX_FAILURE_RETVAL;
 	ssize_t rval = read(fd, buf, count); // for various reasons there is no reason to check return values of these calls
 	lseek(fd, backup, SEEK_SET); // e.g. do we need to restore if read() will fail? Ughh... yes? At least an attempt?
 	return rval;
